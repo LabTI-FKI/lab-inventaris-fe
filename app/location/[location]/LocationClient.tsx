@@ -60,6 +60,14 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     status: "good" as "good" | "broken",
   });
 
+  const [showAllSpecs, setShowAllSpecs] = useState<{ [id: string]: boolean }>({});
+  const handleToggleSpecs = useCallback(
+    (id: string) => {
+      setShowAllSpecs((prev) => ({ ...prev, [id]: !prev[id] }));
+    },
+    []
+  );
+
   const itemsByLocation = getItemsByLocation(decodedLocation);
 
   const filteredItems = itemsByLocation.filter(
@@ -460,14 +468,9 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                   </TableRow>
                 ) : (
                   getSerialNumbersByItem(selectedItem.id).map((serial, idx) => {
-                    const [showAllSpecs, setShowAllSpecs] = useState<{ [id: string]: boolean }>({});
                     const specsLines = serial.specs ? serial.specs.split("\n") : [];
                     const isExpanded = showAllSpecs[serial.id] || false;
                     const displayedLines = isExpanded ? specsLines : specsLines.slice(0, 2);
-                    const handleToggleSpecs = useCallback(() => {
-                      setShowAllSpecs((prev) => ({ ...prev, [serial.id]: !prev[serial.id] }));
-                    }, [serial.id]);
-
                     return (
                       <TableRow key={serial.id}>
                         <TableCell>{idx + 1}</TableCell>
@@ -484,7 +487,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                               {!isExpanded && <span>... </span>}
                               <button
                                 type="button"
-                                onClick={handleToggleSpecs}
+                                onClick={() => handleToggleSpecs(serial.id)}
                                 className="text-blue-600 hover:underline ml-1 text-xs"
                               >
                                 {isExpanded ? "Sembunyikan" : "Selengkapnya"}
