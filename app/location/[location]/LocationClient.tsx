@@ -27,8 +27,6 @@ import { Plus, Edit, Trash2, Package, CheckCircle, AlertTriangle, Search, Shield
 export default function LocationClient({ decodedLocation }: { decodedLocation: string }) {
   const { isAdmin } = useAuth();
   const {
-    items,
-    serialNumbers,
     getItemsByLocation,
     addItem,
     updateItem,
@@ -39,7 +37,6 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     getSerialNumbersByItem,
     getItemQuantity,
     getItemStatusCounts,
-    getItemStatus,
     isLoading,
   } = useInventory();
 
@@ -62,8 +59,6 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     specs: "",
     status: "good" as "good" | "broken",
   });
-
-  const [expandedSpecs, setExpandedSpecs] = useState<{ [id: string]: boolean }>({});
 
   const itemsByLocation = getItemsByLocation(decodedLocation);
 
