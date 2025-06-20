@@ -93,18 +93,6 @@ export default function LoginPage() {
               Kembali ke Tampilan Staf
             </Link>
           </div>
-
-          <div className="mt-4 text-sm text-muted-foreground space-y-2">
-            <p className="font-medium">Akun Admin Demo:</p>
-            <div className="bg-secondary p-3 rounded-md">
-              <p>
-                <strong>Nama Pengguna:</strong> admin
-              </p>
-              <p>
-                <strong>Kata Sandi:</strong> admin123
-              </p>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
