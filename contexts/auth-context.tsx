@@ -15,7 +15,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 // GANTI USER ADMIN DISINI
-const ADMIN_USER = { username: "admin", password: "admin123", role: "admin" as const }
+const ADMIN_USER = {
+  username: process.env.NEXT_PUBLIC_ADMIN_USERNAME || "admin",
+  password: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "admin123",
+  role: "admin" as const,
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
