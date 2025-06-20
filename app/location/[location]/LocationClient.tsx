@@ -463,7 +463,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                     <TableRow key={serial.id}>
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell>{serial.serialNumber}</TableCell>
-                      <TableCell>{serial.specs}</TableCell>
+                      <TableCell style={{ whiteSpace: 'pre-line' }}>{serial.specs}</TableCell>
                       <TableCell className="text-center">
                         <Badge
                           variant="outline"
