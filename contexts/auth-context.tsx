@@ -16,9 +16,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 // GANTI USER ADMIN DISINI
 const ADMIN_USER = {
-  username: process.env.NEXT_PUBLIC_ADMIN_USERNAME || "admin",
-  password: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "admin123",
+  username: process.env.NEXT_PUBLIC_ADMIN_USERNAME,
+  password: process.env.NEXT_PUBLIC_ADMIN_PASSWORD,
   role: "admin" as const,
+}
+
+if (!process.env.NEXT_PUBLIC_ADMIN_USERNAME || !process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+  throw new Error("ADMIN credentials are not set in environment variables!");
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
