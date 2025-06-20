@@ -26,11 +26,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Edit, Trash2, Package, CheckCircle, AlertTriangle, Search, Shield, Barcode } from "lucide-react"
 
-interface LocationPageProps {
-  params: { location: string }
-}
-
-export default function LocationPage({ params }: LocationPageProps) {
+export default function LocationPage({ params }: { params: { location: string } }) {
   const decodedLocation: string = decodeURIComponent(params.location)
   const { isAdmin } = useAuth()
   const {
