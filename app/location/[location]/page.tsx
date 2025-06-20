@@ -1,11 +1,12 @@
 "use client"
 
 import type React from "react"
+import Image from "next/image"
 
 import { useState, use, useEffect } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { useInventory } from "@/hooks/use-inventory"
-import type { InventoryItem, SerialNumber, Location } from "@/types/inventory"
+import type { InventoryItem, SerialNumber } from "@/types/inventory"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -34,8 +35,6 @@ export default function LocationPage({ params }: LocationPageProps) {
   const decodedLocation: string = decodeURIComponent(location)
   const { isAdmin } = useAuth()
   const {
-    items: allItems,
-    serialNumbers: allSerialNumbers,
     getItemsByLocation,
     addItem,
     updateItem,
@@ -46,7 +45,6 @@ export default function LocationPage({ params }: LocationPageProps) {
     getSerialNumbersByItem,
     getItemQuantity,
     getItemStatusCounts,
-    getItemStatus,
     isLoading,
   } = useInventory()
 
@@ -134,6 +132,7 @@ export default function LocationPage({ params }: LocationPageProps) {
       addSerialNumber({
         ...serialFormData,
         itemId: selectedItem.id,
+        dateAdded: new Date().toISOString(),
       })
     }
 
@@ -181,8 +180,6 @@ export default function LocationPage({ params }: LocationPageProps) {
     setSelectedItem(item === selectedItem ? null : item)
   }
 
-  const goodItems = items.filter((item) => getItemStatus(item.id) === "good").length
-  const brokenItems = items.filter((item) => getItemStatus(item.id) === "broken").length
   const totalQuantity = items.reduce((sum, item) => sum + getItemQuantity(item.id), 0)
 
   // Gambar placeholder lokal
@@ -195,7 +192,7 @@ export default function LocationPage({ params }: LocationPageProps) {
   useEffect(() => {
     const timer = setInterval(() => setStatusIndex(i => (i + 1) % statusImages.length), 10000)
     return () => clearInterval(timer)
-  }, [])
+  }, [statusImages.length])
 
   if (isLoading) {
     return (
@@ -314,9 +311,11 @@ export default function LocationPage({ params }: LocationPageProps) {
             <CardTitle className="text-sm font-medium">Galeri Foto</CardTitle>
           </CardHeader>
           <CardContent>
-            <img
+            <Image
               src={statusImages[statusIndex].src}
               alt={statusImages[statusIndex].label}
+              width={400}
+              height={200}
               className="rounded w-full h-32 md:h-40 lg:h-48 object-contain md:object-cover mb-2 transition-all"
             />
             <div className="text-xs text-center text-muted-foreground mb-2">{statusImages[statusIndex].label}</div>

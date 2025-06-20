@@ -1,13 +1,12 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
+import Image from "next/image"
 import { useInventory } from "@/hooks/use-inventory"
 import { useAuth } from "@/contexts/auth-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Package, CheckCircle, AlertTriangle, MapPin, TrendingUp, Shield, User, Barcode, FlaskConical, Cpu, Network, Book, Joystick, Server } from "lucide-react"
-import Link from "next/link"
+import { Package, CheckCircle, AlertTriangle, MapPin, TrendingUp, Barcode, FlaskConical, Cpu, Network, Book, Joystick, Server } from "lucide-react"
 
 export default function DashboardPage() {
   const { getLocationStats, getTotalStats, isLoading, serialNumbers } = useInventory()
@@ -29,28 +28,6 @@ export default function DashboardPage() {
     "Lab RPL": Server,
   }
 
-  // Placeholder images
-  const goodImages = [
-    "https://source.unsplash.com/400x200/?lab,success",
-    "https://source.unsplash.com/400x200/?equipment,clean",
-    "https://source.unsplash.com/400x200/?science,ok"
-  ]
-  const brokenImages = [
-    "https://source.unsplash.com/400x200/?lab,broken",
-    "https://source.unsplash.com/400x200/?equipment,broken",
-    "https://source.unsplash.com/400x200/?science,problem"
-  ]
-  const [goodIndex, setGoodIndex] = useState(0)
-  const [brokenIndex, setBrokenIndex] = useState(0)
-  useEffect(() => {
-    const goodTimer = setInterval(() => setGoodIndex(i => (i + 1) % goodImages.length), 10000)
-    const brokenTimer = setInterval(() => setBrokenIndex(i => (i + 1) % brokenImages.length), 10000)
-    return () => {
-      clearInterval(goodTimer)
-      clearInterval(brokenTimer)
-    }
-  }, [])
-
   // Gambar placeholder lokal
   const statusImages = [
     { src: "/status/status-1.jpg", label: "status-1.jpg" },
@@ -61,7 +38,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const timer = setInterval(() => setStatusIndex(i => (i + 1) % statusImages.length), 10000)
     return () => clearInterval(timer)
-  }, [])
+  }, [statusImages.length])
 
   if (isLoading) {
     return (
@@ -123,9 +100,11 @@ export default function DashboardPage() {
             <CardTitle className="text-sm font-medium">Galeri Foto</CardTitle>
           </CardHeader>
           <CardContent>
-            <img
+            <Image
               src={statusImages[statusIndex].src}
               alt={statusImages[statusIndex].label}
+              width={400}
+              height={200}
               className="rounded w-full h-32 md:h-40 lg:h-48 object-contain md:object-cover mb-2 transition-all"
             />
             <div className="text-xs text-center text-muted-foreground mb-2">{statusImages[statusIndex].label}</div>
