@@ -3,7 +3,7 @@
 import type React from "react"
 import Image from "next/image"
 
-import { useState, use, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { useInventory } from "@/hooks/use-inventory"
 import type { InventoryItem, SerialNumber } from "@/types/inventory"
@@ -31,8 +31,7 @@ interface LocationPageProps {
 }
 
 export default function LocationPage({ params }: LocationPageProps) {
-  const { location } = use(params as unknown as Promise<{ location: string }>)
-  const decodedLocation: string = decodeURIComponent(location)
+  const decodedLocation: string = decodeURIComponent(params.location)
   const { isAdmin } = useAuth()
   const {
     getItemsByLocation,
