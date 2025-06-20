@@ -48,7 +48,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <FlaskConical className="h-12 w-12 text-primary" />
+            <img src="/logoUMS.png" alt="Logo UMS" className="h-12 w-12 object-contain" />
           </div>
           <CardTitle className="text-2xl font-bold">Login Admin</CardTitle>
           <CardDescription>Masuk sebagai admin untuk mengelola inventaris</CardDescription>
