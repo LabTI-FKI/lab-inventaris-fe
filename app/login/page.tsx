@@ -10,8 +10,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { FlaskConical, ArrowLeft } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
@@ -48,7 +49,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <img src="/logoUMS.png" alt="Logo UMS" className="h-12 w-12 object-contain" />
+            <Image src="/logoUMS.png" alt="Logo UMS" width={48} height={48} className="h-12 w-12 object-contain" />
           </div>
           <CardTitle className="text-2xl font-bold">Login Admin</CardTitle>
           <CardDescription>Masuk sebagai admin untuk mengelola inventaris</CardDescription>

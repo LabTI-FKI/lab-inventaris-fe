@@ -16,7 +16,8 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { LayoutDashboard, FlaskConical, MapPin, LogIn, LogOut, User, Shield, Cpu, Network, Book, Joystick, Server } from "lucide-react"
+import { LayoutDashboard, MapPin, LogIn, LogOut, User, Shield, Cpu, Network, Book, Joystick, Server } from "lucide-react"
+import Image from "next/image"
 import { LOCATIONS } from "@/types/inventory"
 
 export function AppSidebar() {
@@ -32,7 +33,7 @@ export function AppSidebar() {
   ]
 
   const locationIconMap: Record<string, React.ElementType> = {
-    "Ruang Laboran": FlaskConical,
+    // "Ruang Laboran": FlaskConical, // Removed FlaskConical, optionally replace with another icon if needed
     "Lab FKI": Cpu,
     "Lab Jarkom": Network,
     "Lab SI": Book,
@@ -50,7 +51,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="border-b">
         <div className="flex items-center gap-2 px-2 py-2">
-          <img src="/logoUMS.png" alt="Logo UMS" className="h-8 w-8 object-contain" />
+          <Image src="/logoUMS.png" alt="Logo UMS" width={32} height={32} className="h-8 w-8 object-contain" />
           <div>
             <p className="font-semibold text-sm">Inventaris Lab</p>
             <p className="text-xs text-white">Teknik Informatika</p>
