@@ -50,7 +50,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="border-b">
         <div className="flex items-center gap-2 px-2 py-2">
-          <FlaskConical className="h-6 w-6 text-yellow-500" />
+          <img src="/logoUMS.png" alt="Logo UMS" className="h-8 w-8 object-contain" />
           <div>
             <p className="font-semibold text-sm">Inventaris Lab</p>
             <p className="text-xs text-white">Teknik Informatika</p>
