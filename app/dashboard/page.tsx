@@ -106,8 +106,7 @@ export default function DashboardPage() {
               width={400}
               height={200}
               className="rounded w-full h-32 md:h-40 lg:h-48 object-contain md:object-cover mb-2 transition-all"
-            />
-            <div className="text-xs text-center text-muted-foreground mb-2">{statusImages[statusIndex].label}</div>
+            />            
           </CardContent>
         </Card>
       </div>

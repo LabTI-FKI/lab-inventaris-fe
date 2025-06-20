@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useAuth } from "@/contexts/auth-context";
 import { useInventory } from "@/hooks/use-inventory";
@@ -459,45 +459,74 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                     </TableCell>
                   </TableRow>
                 ) : (
-                  getSerialNumbersByItem(selectedItem.id).map((serial, idx) => (
-                    <TableRow key={serial.id}>
-                      <TableCell>{idx + 1}</TableCell>
-                      <TableCell>{serial.serialNumber}</TableCell>
-                      <TableCell style={{ whiteSpace: 'pre-line' }}>{serial.specs}</TableCell>
-                      <TableCell className="text-center">
-                        <Badge
-                          variant="outline"
-                          className={
-                            serial.status === "good"
-                              ? "text-green-600 border-green-200 text-xs"
-                              : "text-red-600 border-red-200 text-xs"
-                          }
-                        >
-                          {serial.status === "good" ? (
+                  getSerialNumbersByItem(selectedItem.id).map((serial, idx) => {
+                    const [showAllSpecs, setShowAllSpecs] = useState<{ [id: string]: boolean }>({});
+                    const specsLines = serial.specs ? serial.specs.split("\n") : [];
+                    const isExpanded = showAllSpecs[serial.id] || false;
+                    const displayedLines = isExpanded ? specsLines : specsLines.slice(0, 2);
+                    const handleToggleSpecs = useCallback(() => {
+                      setShowAllSpecs((prev) => ({ ...prev, [serial.id]: !prev[serial.id] }));
+                    }, [serial.id]);
+
+                    return (
+                      <TableRow key={serial.id}>
+                        <TableCell>{idx + 1}</TableCell>
+                        <TableCell>{serial.serialNumber}</TableCell>
+                        <TableCell style={{ whiteSpace: 'pre-line' }}>
+                          {displayedLines.map((line, i) => (
+                            <span key={i}>
+                              {line}
+                              {i !== displayedLines.length - 1 && <br />}
+                            </span>
+                          ))}
+                          {specsLines.length > 2 && (
                             <>
-                              <CheckCircle className="h-3 w-3 mr-1" /> Baik
-                            </>
-                          ) : (
-                            <>
-                              <AlertTriangle className="h-3 w-3 mr-1" /> Rusak
+                              {!isExpanded && <span>... </span>}
+                              <button
+                                type="button"
+                                onClick={handleToggleSpecs}
+                                className="text-blue-600 hover:underline ml-1 text-xs"
+                              >
+                                {isExpanded ? "Sembunyikan" : "Selengkapnya"}
+                              </button>
                             </>
                           )}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {isAdmin && (
-                          <div className="flex gap-2 justify-end">
-                            <Button variant="outline" size="icon" onClick={() => handleEditSerial(serial)}>
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="icon" onClick={() => handleDeleteSerial(serial.id)}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge
+                            variant="outline"
+                            className={
+                              serial.status === "good"
+                                ? "text-green-600 border-green-200 text-xs"
+                                : "text-red-600 border-red-200 text-xs"
+                            }
+                          >
+                            {serial.status === "good" ? (
+                              <>
+                                <CheckCircle className="h-3 w-3 mr-1" /> Baik
+                              </>
+                            ) : (
+                              <>
+                                <AlertTriangle className="h-3 w-3 mr-1" /> Rusak
+                              </>
+                            )}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {isAdmin && (
+                            <div className="flex gap-2 justify-end">
+                              <Button variant="outline" size="icon" onClick={() => handleEditSerial(serial)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button variant="outline" size="icon" onClick={() => handleDeleteSerial(serial.id)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
