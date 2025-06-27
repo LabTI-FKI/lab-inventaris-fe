@@ -207,15 +207,15 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-extrabold text-blue-900 mb-1">{decodedLocation}</h1>
-          <p className="text-muted-foreground text-lg">
+          <h1 className="text-3xl font-bold">{decodedLocation}</h1>
+          <p className="text-muted-foreground">
             {isAdmin ? "Kelola inventaris barang untuk ruangan ini" : "Lihat inventaris barang untuk ruangan ini"}
           </p>
         </div>
         {isAdmin && (
           <Dialog open={isAddItemDialogOpen} onOpenChange={setIsAddItemDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={resetItemForm} className="rounded-lg shadow-md bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2">
+              <Button onClick={resetItemForm}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Item
               </Button>
@@ -269,30 +269,29 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
           </Dialog>
         )}
       </div>
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-lg transition-shadow rounded-xl border-2 border-blue-100 bg-gradient-to-br from-white to-blue-50">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base font-semibold text-blue-900">Total Barang</CardTitle>
-            <Package className="h-5 w-5 text-blue-400" />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Barang</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="text-4xl font-extrabold text-blue-700">{itemsByLocation.length}</div>
-            <p className="text-sm text-blue-500">{totalQuantity} jumlah total</p>
+          <CardContent>
+            <div className="text-2xl font-bold">{itemsByLocation.length}</div>
+            <p className="text-xs text-muted-foreground">{totalQuantity} jumlah total</p>
           </CardContent>
         </Card>
-        <Card className="lg:col-span-2 hover:shadow-lg transition-shadow rounded-xl border-2 border-blue-100 bg-gradient-to-br from-white to-blue-50">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base font-semibold text-blue-900">Galeri Foto</CardTitle>
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Galeri Foto</CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent>
             <Image
               src={statusImages[statusIndex].src}
               alt={statusImages[statusIndex].label}
               width={400}
               height={200}
-              className="rounded-xl w-full h-32 md:h-40 lg:h-48 object-cover mb-2 border-2 border-blue-100 shadow-md transition-all duration-500 ease-in-out"
+              className="rounded w-full h-32 md:h-40 lg:h-48 object-contain md:object-cover mb-2 transition-all"
             />
-            <div className="text-xs text-center text-blue-500 mb-2 font-medium">{statusImages[statusIndex].label}</div>
           </CardContent>
         </Card>
       </div>
