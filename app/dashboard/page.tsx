@@ -6,7 +6,7 @@ import { useInventory } from "@/hooks/use-inventory"
 import { useAuth } from "@/contexts/auth-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Package, CheckCircle, AlertTriangle, MapPin, TrendingUp, Barcode, FlaskConical, Cpu, Network, Book, Joystick, Server } from "lucide-react"
+import { Package, CheckCircle, AlertTriangle, MapPin, TrendingUp, Barcode, Building, Cpu, Network, Computer, Joystick, Braces} from "lucide-react"
 
 export default function DashboardPage() {
   const { getLocationStats, getTotalStats, isLoading, serialNumbers } = useInventory()
@@ -20,12 +20,12 @@ export default function DashboardPage() {
   const itemsWithSerialCount = itemsWithSerial.size
 
   const locationIconMap: Record<string, React.ElementType> = {
-    "Ruang Laboran": FlaskConical,
+    "Ruang Laboran": Building,
     "Lab FKI": Cpu,
     "Lab Jarkom": Network,
-    "Lab SI": Book,
+    "Lab SI": Computer,
     "Lab SIC": Joystick,
-    "Lab RPL": Server,
+    "Lab RPL": Braces,
   }
 
   // Gambar placeholder lokal

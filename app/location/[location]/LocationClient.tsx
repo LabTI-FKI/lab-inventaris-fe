@@ -160,7 +160,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
   };
 
   const handleDeleteItem = (id: string) => {
-    if (confirm("Apakah Anda yakin ingin menghapus item ini dan semua serial numbersnya?")) {
+    if (confirm("Apakah Anda yakin ingin menghapus item ini dan semua kode inventarisnya?")) {
       deleteItem(id);
       if (selectedItem?.id === id) {
         setSelectedItem(null);
@@ -169,7 +169,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
   };
 
   const handleDeleteSerial = (id: string) => {
-    if (confirm("Apakah Anda yakin ingin menghapus serial number ini?")) {
+    if (confirm("Apakah Anda yakin ingin menghapus Kode Inventaris ini?")) {
       deleteSerialNumber(id);
     }
   };
@@ -207,15 +207,15 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{decodedLocation}</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-4xl font-extrabold text-blue-900 mb-1">{decodedLocation}</h1>
+          <p className="text-muted-foreground text-lg">
             {isAdmin ? "Kelola inventaris barang untuk ruangan ini" : "Lihat inventaris barang untuk ruangan ini"}
           </p>
         </div>
         {isAdmin && (
           <Dialog open={isAddItemDialogOpen} onOpenChange={setIsAddItemDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={resetItemForm}>
+              <Button onClick={resetItemForm} className="rounded-lg shadow-md bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Item
               </Button>
@@ -235,7 +235,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                       id="name"
                       value={itemFormData.name}
                       onChange={(e) => setItemFormData({ ...itemFormData, name: e.target.value })}
-                      placeholder="e.g., Microscope"
+                      placeholder="e.g., Komputer, Proyektor, dsb"
                       required
                     />
                   </div>
@@ -250,7 +250,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="quantity">Jumlah Nomor Seri</Label>
+                    <Label htmlFor="quantity">Jumlah Kode Inventaris</Label>
                     <Input
                       id="quantity"
                       type="number"
@@ -269,30 +269,30 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
           </Dialog>
         )}
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Barang</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="hover:shadow-lg transition-shadow rounded-xl border-2 border-blue-100 bg-gradient-to-br from-white to-blue-50">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-base font-semibold text-blue-900">Total Barang</CardTitle>
+            <Package className="h-5 w-5 text-blue-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{itemsByLocation.length}</div>
-            <p className="text-xs text-muted-foreground">{totalQuantity} jumlah total</p>
+          <CardContent className="p-6">
+            <div className="text-4xl font-extrabold text-blue-700">{itemsByLocation.length}</div>
+            <p className="text-sm text-blue-500">{totalQuantity} jumlah total</p>
           </CardContent>
         </Card>
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Galeri Foto</CardTitle>
+        <Card className="lg:col-span-2 hover:shadow-lg transition-shadow rounded-xl border-2 border-blue-100 bg-gradient-to-br from-white to-blue-50">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-base font-semibold text-blue-900">Galeri Foto</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <Image
               src={statusImages[statusIndex].src}
               alt={statusImages[statusIndex].label}
               width={400}
               height={200}
-              className="rounded w-full h-32 md:h-40 lg:h-48 object-contain md:object-cover mb-2 transition-all"
+              className="rounded-xl w-full h-32 md:h-40 lg:h-48 object-cover mb-2 border-2 border-blue-100 shadow-md transition-all duration-500 ease-in-out"
             />
-            <div className="text-xs text-center text-muted-foreground mb-2">{statusImages[statusIndex].label}</div>
+            <div className="text-xs text-center text-blue-500 mb-2 font-medium">{statusImages[statusIndex].label}</div>
           </CardContent>
         </Card>
       </div>
@@ -379,10 +379,10 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
             <div>
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <Barcode className="h-5 w-5" />
-                Nomor Seri untuk {selectedItem.name}
+                Kode Inventaris untuk {selectedItem.name}
               </h2>
               <p className="text-muted-foreground">
-                {getSerialNumbersByItem(selectedItem.id).length} nomor serial terdaftar
+                {getSerialNumbersByItem(selectedItem.id).length} kode inventaris terdaftar
               </p>
             </div>
             {isAdmin && (
@@ -390,25 +390,25 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                 <DialogTrigger asChild>
                   <Button onClick={resetSerialForm} size="sm">
                     <Plus className="h-4 w-4 mr-2" />
-                    Tambah Nomor Seri
+                    Tambah Kode Inventaris
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogHeader>
-                    <DialogTitle>{editingSerial ? "Edit Serial Number" : "Add New Serial Number"}</DialogTitle>
+                    <DialogTitle>{editingSerial ? "Edit Kode Inventaris" : "Tambah Kode Inventaris"}</DialogTitle>
                     <DialogDescription>
-                      {editingSerial ? "Update the serial number details below." : "Add a new serial number to the item."}
+                      {editingSerial ? "Perbarui rincian kode inventaris" : "Tambah kode inventaris baru"}
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleSerialSubmit}>
                     <div className="grid gap-4 py-4">
                       <div className="grid gap-2">
-                        <Label htmlFor="serialNumber">Nomor Seri</Label>
+                        <Label htmlFor="serialNumber">Kode Inventaris</Label>
                         <Input
                           id="serialNumber"
                           value={serialFormData.serialNumber}
                           onChange={(e) => setSerialFormData({ ...serialFormData, serialNumber: e.target.value })}
-                          placeholder="e.g., SN123456"
+                          placeholder="e.g., *00000001*"
                         />
                       </div>
                       <div className="grid gap-2">
@@ -439,7 +439,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                       </div>
                     </div>
                     <DialogFooter>
-                      <Button type="submit">{editingSerial ? "Update Serial Number" : "Add Serial Number"}</Button>
+                      <Button type="submit">{editingSerial ? "Perbarui Kode Inventaris" : "Tambah Kode Inventaris"}</Button>
                     </DialogFooter>
                   </form>
                 </DialogContent>
@@ -453,7 +453,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
               <TableHeader>
                 <TableRow className="bg-[#e0e3f5]">
                   <TableHead className="w-[50px]">#</TableHead>
-                  <TableHead className="w-[200px]">Nomor Seri</TableHead>
+                  <TableHead className="w-[200px]">Kode Inventaris</TableHead>
                   <TableHead>Spesifikasi</TableHead>
                   <TableHead className="w-[120px] text-center">Status</TableHead>
                   <TableHead className="w-[100px]"></TableHead>
@@ -463,7 +463,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                 {getSerialNumbersByItem(selectedItem.id).length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
-                      Tidak ada nomor serial terdaftar untuk item ini.
+                      Tidak ada Kode Inventaris terdaftar untuk item ini.
                     </TableCell>
                   </TableRow>
                 ) : (
