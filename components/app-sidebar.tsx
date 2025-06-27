@@ -16,7 +16,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { LayoutDashboard, MapPin, LogIn, LogOut, User, Shield, Cpu, Network, Book, Joystick, Server } from "lucide-react"
+import { LayoutDashboard, MapPin, LogIn, LogOut, User, Shield, Building, Cpu, Network, Computer, Joystick, Braces } from "lucide-react"
 import Image from "next/image"
 import { LOCATIONS } from "@/types/inventory"
 
@@ -33,12 +33,12 @@ export function AppSidebar() {
   ]
 
   const locationIconMap: Record<string, React.ElementType> = {
-    // "Ruang Laboran": FlaskConical, // Removed FlaskConical, optionally replace with another icon if needed
+    "Ruang Laboran": Building,
     "Lab FKI": Cpu,
     "Lab Jarkom": Network,
-    "Lab SI": Book,
+    "Lab SI": Computer,
     "Lab SIC": Joystick,
-    "Lab RPL": Server,
+    "Lab RPL": Braces,
   }
 
   const locationItems = LOCATIONS.map((location) => ({
