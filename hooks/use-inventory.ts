@@ -7,7 +7,7 @@ export function useInventory() {
   const [items, setItems] = useState<InventoryItem[]>([])
   const [serialNumbers, setSerialNumbers] = useState<SerialNumber[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://lab-inventaris-backend.onrender.com';
 
   // Ambil data items dari backend saat mount
   useEffect(() => {
