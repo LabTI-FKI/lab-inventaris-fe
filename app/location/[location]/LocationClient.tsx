@@ -183,10 +183,16 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
 
 
   const fetchSerialNumbers = async (itemId: string) => {
+  try {
     const response = await fetch(`/items/${itemId}/serial-numbers`);
     const data = await response.json();
+    console.log("Fetched serial numbers:", data); // 🐛 ADD THIS
     setSerialNumbers(data);
+  } catch (error) {
+    console.error("Failed to fetch serial numbers:", error);
+  }
 };
+
 
 
   const totalQuantity = itemsByLocation.reduce((sum, item) => sum + (item.jumlah ?? 0), 0);
