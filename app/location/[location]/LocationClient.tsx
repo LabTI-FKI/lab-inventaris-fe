@@ -136,6 +136,7 @@ const handleSerialSubmit = async (e: React.FormEvent) => {
   await fetchSerialNumbers(selectedItem.id); // ⬅ Refresh serials
   resetSerialForm();
   setIsAddSerialDialogOpen(false);
+  window.location.reload();
 };
 
 
