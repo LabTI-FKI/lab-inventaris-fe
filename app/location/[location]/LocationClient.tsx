@@ -135,6 +135,7 @@ const handleSerialSubmit = async (e: React.FormEvent) => {
   await fetchTotalQuantity(decodedLocation); 
   await fetchSerialNumbers(selectedItem.id); // ⬅ Refresh serials
   resetSerialForm();
+  resetItemForm();
   setIsAddSerialDialogOpen(false);
 };
 
@@ -175,6 +176,7 @@ const handleSerialSubmit = async (e: React.FormEvent) => {
       await deleteSerialNumber(id);
       await fetchSerialNumbers(selectedItem.id); // ⬅ Refresh serials
       await fetchTotalQuantity(decodedLocation); 
+      resetItemForm();
     }
   };
 
