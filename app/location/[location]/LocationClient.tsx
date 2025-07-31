@@ -44,7 +44,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [editingSerial, setEditingSerial] = useState<SerialNumber | null>(null);
   const [serialNumbers, setSerialNumbers] = useState<SerialNumber[]>([]);
-
+  
 
   const [itemFormData, setItemFormData] = useState({
     name: "",
@@ -200,7 +200,9 @@ const fetchSerialNumbers = async (itemId: string) => {
 
 
 
-  const totalQuantity = itemsByLocation.reduce((sum, item) => sum + (item.jumlah ?? 0), 0);
+  // const totalQuantity = itemsByLocation.reduce((sum, item) => sum + (item.jumlah ?? 0), 0);
+  const [totalQuantity, setTotalQuantity] = useState<number>(0);
+
 
 
   // Gambar placeholder lokal
@@ -214,6 +216,24 @@ const fetchSerialNumbers = async (itemId: string) => {
     const timer = setInterval(() => setStatusIndex((i) => (i + 1) % statusImages.length), 10000);
     return () => clearInterval(timer);
   }, [statusImages.length]);
+
+  const fetchTotalQuantity = async (location: string) => {
+  try {
+    const res = await fetch(`/inventory-count/by-location?location=${encodeURIComponent(location)}`);
+    const data = await res.json();
+    setTotalQuantity(data.total || 0);
+  } catch (err) {
+    console.error("Error fetching total quantity:", err);
+    setTotalQuantity(0);
+  }
+};
+useEffect(() => {
+  if (decodedLocation) {
+    fetchTotalQuantity(decodedLocation);
+  }
+}, [decodedLocation]);
+
+
 
   if (isLoading) {
     return (
