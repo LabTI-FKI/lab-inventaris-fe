@@ -8,14 +8,17 @@ export interface SerialNumber {
 }
 
 export interface InventoryItem {
-  id: string
-  name: string
-  information: string
-  location: string
-  dateAdded: string
-  lastUpdated: string
+  id: string;
+  name: string;
+  information: string;
+  location: string;
+  dateAdded: string;
+  lastUpdated: string;
   jumlah?: number;
+  rusak?: number;
+  baik?: number;
 }
+
 
 export interface User {
   username: string

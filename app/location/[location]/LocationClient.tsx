@@ -318,7 +318,11 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
             ) : (
               filteredItems.map((item) => {
                 const quantity = item.jumlah ?? 0;
-                const statusCounts = getItemStatusCounts(item.id);
+                const statusCounts = {
+                                      good: item.baik ?? 0,
+                                      broken: item.rusak ?? 0,
+                                    };
+
 
                 return (
                   <TableRow
