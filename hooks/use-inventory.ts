@@ -155,13 +155,6 @@ export function useInventory() {
   }
 
 
-  const getItemStatusCounts = (itemId: string) => {
-    const itemSerials = serialNumbers.filter((serial) => serial.itemId === itemId)
-    const good = itemSerials.filter((serial) => serial.status === "good").length
-    const broken = itemSerials.filter((serial) => serial.status === "broken").length
-
-    return { good, broken }
-  }
 
   const getItemStatus = (itemId: string) => {
     const itemSerials = serialNumbers.filter((serial) => serial.itemId === itemId)
@@ -223,7 +216,6 @@ export function useInventory() {
     deleteSerialNumber,
     getItemsByLocation,
     getSerialNumbersByItem,
-    getItemStatusCounts,
     getItemStatus,
     getLocationStats,
     getTotalStats,

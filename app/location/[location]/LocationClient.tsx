@@ -35,7 +35,6 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     updateSerialNumber,
     deleteSerialNumber,
     getSerialNumbersByItem,
-    getItemStatusCounts,
     isLoading,
   } = useInventory();
 
