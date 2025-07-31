@@ -249,17 +249,6 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                       required
                     />
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="quantity">Jumlah Kode Inventaris</Label>
-                    <Input
-                      id="quantity"
-                      type="number"
-                      min={1}
-                      value={itemFormData.quantity}
-                      onChange={(e) => setItemFormData({ ...itemFormData, quantity: Number(e.target.value) })}
-                      required
-                    />
-                  </div>
                 </div>
                 <DialogFooter>
                   <Button type="submit">{editingItem ? "Update Item" : "Add Item"}</Button>
