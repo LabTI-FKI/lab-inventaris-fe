@@ -154,6 +154,17 @@ export function useInventory() {
     return serialNumbers.filter((serial) => serial.itemId === itemId)
   }
 
+  const getSerialNumbersFromServer = async (itemId: string) => {
+  try {
+    const res = await fetch(`${API_URL}/items/${itemId}/serial-numbers`);
+    if (!res.ok) throw new Error('Failed to fetch serial numbers');
+    return await res.json();
+  } catch (err) {
+    console.error('Error fetching serials from server:', err);
+    return [];
+  }
+};
+
 
 
   const getItemStatus = (itemId: string) => {

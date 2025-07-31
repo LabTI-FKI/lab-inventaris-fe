@@ -44,6 +44,9 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [editingSerial, setEditingSerial] = useState<SerialNumber | null>(null);
+  const [serialNumbers, setSerialNumbers] = useState<SerialNumber[]>([]);
+  const [isLoadingSerials, setIsLoadingSerials] = useState(false);
+
 
   const [itemFormData, setItemFormData] = useState({
     name: "",
@@ -173,8 +176,27 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
   };
 
   const handleSelectItem = (item: InventoryItem) => {
-    setSelectedItem(item === selectedItem ? null : item);
+    const isSame = selectedItem?.id === item.id;
+    setSelectedItem(isSame ? null : item);
+    if (!isSame) {
+      fetchSerialNumbers(item.id);
+    }
   };
+
+
+  const fetchSerialNumbers = async (itemId: string) => {
+  setIsLoadingSerials(true);
+  try {
+    const response = await fetch(`/items/${itemId}/serial-numbers`);
+    const data = await response.json();
+    setSerialNumbers(data);
+  } catch (error) {
+    console.error('Failed to fetch serial numbers:', error);
+  } finally {
+    setIsLoadingSerials(false);
+  }
+};
+
 
   const totalQuantity = itemsByLocation.reduce((sum, item) => sum + (item.jumlah ?? 0), 0);
 
@@ -451,14 +473,14 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {getSerialNumbersByItem(selectedItem.id).length === 0 ? (
+                {serialNumbers.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
                       Tidak ada Kode Inventaris terdaftar untuk item ini.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  getSerialNumbersByItem(selectedItem.id).map((serial, idx) => {
+                  serialNumbers.map((serial, idx) => {
                     const specsLines = serial.specs ? serial.specs.split("\n") : [];
                     const isExpanded = showAllSpecs[serial.id] || false;
                     const displayedLines = isExpanded ? specsLines : specsLines.slice(0, 2);
