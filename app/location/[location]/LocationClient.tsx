@@ -319,9 +319,9 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
               filteredItems.map((item) => {
                 const quantity = item.jumlah ?? 0;
                 const statusCounts = {
-                                      good: item.jumlah ?? 5,
-                                      broken: item.rusak ?? 5,
-                                    };
+                  good: item.baik ?? 0,
+                  broken: item.rusak ?? 0,
+                };
 
 
                 return (
@@ -337,11 +337,11 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                       <div className="flex justify-center gap-1">
                         <Badge variant="outline" className="text-green-600 border-green-200 text-xs">
                           <CheckCircle className="h-3 w-3 mr-1" />
-                          5 Baik
+                          {statusCounts.good} Baik
                         </Badge>
                         <Badge variant="outline" className="text-red-600 border-red-200 text-xs">
                           <AlertTriangle className="h-3 w-3 mr-1" />
-                          4 Rusak
+                          {statusCounts.broken} Rusak
                         </Badge>
                       </div>
                     </TableCell>
