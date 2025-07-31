@@ -182,16 +182,17 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
   };
 
 
-  const fetchSerialNumbers = async (itemId: string) => {
+const fetchSerialNumbers = async (itemId: string) => {
   try {
-    const response = await fetch(`/items/${itemId}/serial-numbers`);
+    const response = await fetch(`https://lab-inventaris-backend.onrender.com/items/${itemId}/serial-numbers`);
     const data = await response.json();
-    console.log("Fetched serial numbers:", data); // 🐛 ADD THIS
+    console.log("Fetched serial numbers:", data);
     setSerialNumbers(data);
   } catch (error) {
     console.error("Failed to fetch serial numbers:", error);
   }
 };
+
 
 
 
