@@ -35,7 +35,6 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     updateSerialNumber,
     deleteSerialNumber,
     isLoading,
-    refetchInventory,
   } = useInventory();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -114,6 +113,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
         itemFormData.quantity
       );
     }
+
     resetItemForm();
     setIsAddItemDialogOpen(false);
   };
@@ -134,9 +134,7 @@ const handleSerialSubmit = async (e: React.FormEvent) => {
 
   await fetchTotalQuantity(decodedLocation); 
   await fetchSerialNumbers(selectedItem.id); // ⬅ Refresh serials
-  await refetchInventory(); 
   resetSerialForm();
-  resetItemForm();
   setIsAddSerialDialogOpen(false);
 };
 
@@ -177,8 +175,6 @@ const handleSerialSubmit = async (e: React.FormEvent) => {
       await deleteSerialNumber(id);
       await fetchSerialNumbers(selectedItem.id); // ⬅ Refresh serials
       await fetchTotalQuantity(decodedLocation); 
-      await refetchInventory(); 
-      resetItemForm();
     }
   };
 

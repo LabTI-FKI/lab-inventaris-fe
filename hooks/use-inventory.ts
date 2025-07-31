@@ -10,27 +10,26 @@ export function useInventory() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://lab-inventaris-backend.onrender.com';
 
   // Ambil data items dari backend saat mount
-  const fetchInventory = async () => {
-  setIsLoading(true);
-  try {
-    const resItems = await fetch(`${API_URL}/items`);
-    const itemsData = await resItems.json();
-    setItems(itemsData);
+  useEffect(() => {
+    async function fetchData() {
+      setIsLoading(true);
+      try {
+        const resItems = await fetch(`${API_URL}/items`);
+        const itemsData = await resItems.json();
+        setItems(itemsData);
 
-    const resSerials = await fetch(`${API_URL}/serial-numbers`);
-    const serialsData = await resSerials.json();
-    setSerialNumbers(serialsData);
-  } catch (err) {
-    console.error('Gagal mengambil data dari backend:', err);
-    setItems([]);
-    setSerialNumbers([]);
-  }
-  setIsLoading(false);
-};
-
-useEffect(() => {
-  fetchInventory();
-}, []);
+        const resSerials = await fetch(`${API_URL}/serial-numbers`);
+        const serialsData = await resSerials.json();
+        setSerialNumbers(serialsData);
+      } catch (err) {
+        setItems([]);
+        setSerialNumbers([]);
+        console.error('Gagal mengambil data dari backend:', err);
+      }
+      setIsLoading(false);
+    }
+    fetchData();
+  }, []);
 
   // Tambah barang ke backend, jika ada quantity, tambahkan serial numbers juga
   const addItem = async (item: Omit<InventoryItem, "id" | "dateAdded" | "lastUpdated">, quantity?: number) => {
@@ -227,6 +226,5 @@ useEffect(() => {
     getItemStatus,
     getLocationStats,
     getTotalStats,
-    refetchInventory: fetchInventory,
   }
 }
