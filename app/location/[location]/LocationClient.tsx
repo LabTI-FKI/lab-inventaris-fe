@@ -337,11 +337,11 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                       <div className="flex justify-center gap-1">
                         <Badge variant="outline" className="text-green-600 border-green-200 text-xs">
                           <CheckCircle className="h-3 w-3 mr-1" />
-                          {statusCounts.good} Baik
+                          5 Baik
                         </Badge>
                         <Badge variant="outline" className="text-red-600 border-red-200 text-xs">
                           <AlertTriangle className="h-3 w-3 mr-1" />
-                          {statusCounts.broken} Rusak
+                          4 Rusak
                         </Badge>
                       </div>
                     </TableCell>
