@@ -150,9 +150,6 @@ export function useInventory() {
     return items.filter((item) => item.location === location)
   }
 
-  const getSerialNumbersByItem = (itemId: string) => {
-    return serialNumbers.filter((serial) => serial.itemId === itemId)
-  }
 
   const getSerialNumbersFromServer = async (itemId: string) => {
   try {
@@ -226,7 +223,6 @@ export function useInventory() {
     updateSerialNumber,
     deleteSerialNumber,
     getItemsByLocation,
-    getSerialNumbersByItem,
     getItemStatus,
     getLocationStats,
     getTotalStats,
