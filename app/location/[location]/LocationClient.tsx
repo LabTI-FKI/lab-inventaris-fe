@@ -35,7 +35,6 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     updateSerialNumber,
     deleteSerialNumber,
     getSerialNumbersByItem,
-    getItemQuantity,
     getItemStatusCounts,
     isLoading,
   } = useInventory();
@@ -143,7 +142,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
       name: item.name,
       information: item.information,
       location: item.location,
-      quantity: getItemQuantity(item.id),
+      quantity: item.jumlah ?? 1,
     });
     setEditingItem(item);
     setIsAddItemDialogOpen(true);
