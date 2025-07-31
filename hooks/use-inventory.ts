@@ -223,7 +223,6 @@ export function useInventory() {
     deleteSerialNumber,
     getItemsByLocation,
     getSerialNumbersByItem,
-    getItemQuantity,
     getItemStatusCounts,
     getItemStatus,
     getLocationStats,
