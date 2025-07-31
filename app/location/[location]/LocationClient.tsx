@@ -219,7 +219,7 @@ const fetchSerialNumbers = async (itemId: string) => {
 
   const fetchTotalQuantity = async (location: string) => {
   try {
-    const res = await fetch(`/inventory-count/by-location?location=${encodeURIComponent(location)}`);
+    const res = await fetch(`https://lab-inventaris-backend.onrender.com/inventory-count/by-location?location=${encodeURIComponent(location)}`);
     const data = await res.json();
     setTotalQuantity(data.total || 0);
   } catch (err) {
