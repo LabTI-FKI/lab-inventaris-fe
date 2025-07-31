@@ -320,7 +320,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                 const quantity = item.jumlah ?? 0;
                 const statusCounts = {
                                       good: item.baik ?? 5,
-                                      broken: item.rusak ?? 0,
+                                      broken: item.rusak ?? 5,
                                     };
 
 
