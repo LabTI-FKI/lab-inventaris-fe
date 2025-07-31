@@ -373,7 +373,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
                 Kode Inventaris untuk {selectedItem.name}
               </h2>
               <p className="text-muted-foreground">
-                {getSerialNumbersByItem(selectedItem.id).length} kode inventaris terdaftar
+                {selectedItem.jumlah ?? 0} kode inventaris terdaftar
               </p>
             </div>
             {isAdmin && (
