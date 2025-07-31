@@ -317,7 +317,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
               </TableRow>
             ) : (
               filteredItems.map((item) => {
-                const quantity = item.jumlah ?? 5;
+                const quantity = item.jumlah ?? 0;
                 const statusCounts = getItemStatusCounts(item.id);
 
                 return (
