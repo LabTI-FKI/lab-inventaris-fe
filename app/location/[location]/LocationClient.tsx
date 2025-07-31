@@ -118,24 +118,25 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     setIsAddItemDialogOpen(false);
   };
 
-  const handleSerialSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSerialSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!selectedItem) return;
 
-    if (!selectedItem) return;
+  if (editingSerial) {
+    await updateSerialNumber(editingSerial.id, serialFormData);
+  } else {
+    await addSerialNumber({
+      ...serialFormData,
+      itemId: selectedItem.id,
+      dateAdded: new Date().toISOString(),
+    });
+  }
 
-    if (editingSerial) {
-      updateSerialNumber(editingSerial.id, serialFormData);
-    } else {
-      addSerialNumber({
-        ...serialFormData,
-        itemId: selectedItem.id,
-        dateAdded: new Date().toISOString(),
-      });
-    }
+  await fetchSerialNumbers(selectedItem.id); // ⬅ Refresh serials
+  resetSerialForm();
+  setIsAddSerialDialogOpen(false);
+};
 
-    resetSerialForm();
-    setIsAddSerialDialogOpen(false);
-  };
 
   const handleEditItem = (item: InventoryItem) => {
     setItemFormData({
@@ -167,11 +168,14 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     }
   };
 
-  const handleDeleteSerial = (id: string) => {
+  const handleDeleteSerial = async (id: string) => {
+    if (!selectedItem) return;
     if (confirm("Apakah Anda yakin ingin menghapus Kode Inventaris ini?")) {
-      deleteSerialNumber(id);
+      await deleteSerialNumber(id);
+      await fetchSerialNumbers(selectedItem.id); // ⬅ Refresh serials
     }
   };
+
 
   const handleSelectItem = (item: InventoryItem) => {
     const isSame = selectedItem?.id === item.id;
