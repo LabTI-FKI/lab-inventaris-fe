@@ -44,7 +44,6 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [editingSerial, setEditingSerial] = useState<SerialNumber | null>(null);
   const [serialNumbers, setSerialNumbers] = useState<SerialNumber[]>([]);
-  const [isLoadingSerials, setIsLoadingSerials] = useState(false);
 
 
   const [itemFormData, setItemFormData] = useState({
@@ -184,16 +183,9 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
 
 
   const fetchSerialNumbers = async (itemId: string) => {
-  setIsLoadingSerials(true);
-  try {
     const response = await fetch(`/items/${itemId}/serial-numbers`);
     const data = await response.json();
     setSerialNumbers(data);
-  } catch (error) {
-    console.error('Failed to fetch serial numbers:', error);
-  } finally {
-    setIsLoadingSerials(false);
-  }
 };
 
 
