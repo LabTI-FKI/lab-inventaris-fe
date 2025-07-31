@@ -154,9 +154,6 @@ export function useInventory() {
     return serialNumbers.filter((serial) => serial.itemId === itemId)
   }
 
-  const getItemQuantity = (itemId: string) => {
-    return serialNumbers.filter((serial) => serial.itemId === itemId).length
-  }
 
   const getItemStatusCounts = (itemId: string) => {
     const itemSerials = serialNumbers.filter((serial) => serial.itemId === itemId)

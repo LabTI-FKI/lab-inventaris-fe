@@ -178,7 +178,8 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     setSelectedItem(item === selectedItem ? null : item);
   };
 
-  const totalQuantity = itemsByLocation.reduce((sum, item) => sum + getItemQuantity(item.id), 0);
+  const totalQuantity = itemsByLocation.reduce((sum, item) => sum + (item.jumlah ?? 0), 0);
+
 
   // Gambar placeholder lokal
   const statusImages = [
@@ -317,7 +318,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
               </TableRow>
             ) : (
               filteredItems.map((item) => {
-                const quantity = getItemQuantity(item.id);
+                const quantity = item.jumlah ?? 0;
                 const statusCounts = getItemStatusCounts(item.id);
 
                 return (

@@ -14,7 +14,7 @@ export interface InventoryItem {
   location: string
   dateAdded: string
   lastUpdated: string
-  // quantity and status will be calculated automatically
+  jumlah?: number;
 }
 
 export interface User {
