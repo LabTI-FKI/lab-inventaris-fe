@@ -131,6 +131,9 @@ const handleSerialSubmit = async (e: React.FormEvent) => {
       dateAdded: new Date().toISOString(),
     });
   }
+
+  await fetchTotalQuantity(decodedLocation); 
+  await fetchSerialNumbers(selectedItem.id); // ⬅ Refresh serials
   resetSerialForm();
   setIsAddSerialDialogOpen(false);
   window.location.reload();
