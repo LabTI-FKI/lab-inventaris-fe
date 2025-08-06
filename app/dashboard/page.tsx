@@ -131,16 +131,6 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-green-600 border-green-200">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    {stat.good} Baik
-                  </Badge>
-                  <Badge variant="outline" className="text-red-600 border-red-200">
-                    <AlertTriangle className="h-3 w-3 mr-1" />
-                    {stat.broken} Rusak
-                  </Badge>
-                </div>
               </div>
             ))}
           </div>
