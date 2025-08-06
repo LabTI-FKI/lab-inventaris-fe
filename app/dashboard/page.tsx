@@ -1,21 +1,38 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import Image from "next/image"
 import { useInventory } from "@/hooks/use-inventory"
 import { useAuth } from "@/contexts/auth-context"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Package, CheckCircle, AlertTriangle, MapPin, TrendingUp, Barcode, Building, Cpu, Network, Computer, Joystick, Braces} from "lucide-react"
+import {Package, CheckCircle, AlertTriangle, MapPin, TrendingUp, Barcode, Building, Cpu, Network, Computer, Joystick, Braces} from "lucide-react"
 
 export default function DashboardPage() {
-  const { getLocationStats, getTotalStats, isLoading, serialNumbers } = useInventory()
+  const {
+    getLocationStats,
+    getTotalStats,
+    isLoading,
+    serialNumbers,
+    items,
+  } = useInventory()
   const { isAdmin, user } = useAuth()
 
-  const totalStats = getTotalStats()
-  const locationStats = getLocationStats()
+  // Menghitung ulang statistik saat data berubah
+  const totalStats = useMemo(() => {
+    if (isLoading) return null
+    return getTotalStats()
+  }, [isLoading, serialNumbers, items])
 
-  const itemsWithSerialCount = serialNumbers.length
+  const locationStats = useMemo(() => {
+    if (isLoading) return []
+    return getLocationStats()
+  }, [isLoading, serialNumbers, items])
+
+  const itemsWithSerial = useMemo(() => {
+    const set = new Set(serialNumbers.map(sn => sn.itemId))
+    return set.size
+  }, [serialNumbers])
 
   const locationIconMap: Record<string, React.ElementType> = {
     "Ruang Laboran": Building,
@@ -26,7 +43,6 @@ export default function DashboardPage() {
     "Lab RPL": Braces,
   }
 
-  // Gambar placeholder lokal
   const statusImages = [
     { src: "/status/status-1.jpg", label: "status-1.jpg" },
     { src: "/status/status-2.jpg", label: "status-2.jpg" },
@@ -36,9 +52,9 @@ export default function DashboardPage() {
   useEffect(() => {
     const timer = setInterval(() => setStatusIndex(i => (i + 1) % statusImages.length), 10000)
     return () => clearInterval(timer)
-  }, [statusImages.length])
+  }, [])
 
-  if (isLoading) {
+  if (isLoading || !totalStats) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -72,6 +88,7 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-sm rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -83,16 +100,18 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">{totalStats.totalQuantity} jumlah total</p>
           </CardContent>
         </Card>
+
         <Card className="shadow-sm rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Nomor Seri</CardTitle>
             <Barcode className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-extrabold text-primary">{itemsWithSerialCount}</div>
+            <div className="text-3xl font-extrabold text-primary">{itemsWithSerial}</div>
             <p className="text-xs text-muted-foreground">Barang memiliki nomor seri</p>
           </CardContent>
         </Card>
+
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Galeri Foto</CardTitle>
@@ -104,10 +123,11 @@ export default function DashboardPage() {
               width={400}
               height={200}
               className="rounded w-full h-32 md:h-40 lg:h-48 object-contain md:object-cover mb-2 transition-all"
-            />            
+            />
           </CardContent>
         </Card>
       </div>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
