@@ -5,8 +5,7 @@ import Image from "next/image"
 import { useInventory } from "@/hooks/use-inventory"
 import { useAuth } from "@/contexts/auth-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Package, CheckCircle, AlertTriangle, MapPin, TrendingUp, Barcode, Building, Cpu, Network, Computer, Joystick, Braces} from "lucide-react"
+import { Package, MapPin, TrendingUp, Barcode, Building, Cpu, Network, Computer, Joystick, Braces} from "lucide-react"
 
 export default function DashboardPage() {
   const { getLocationStats, getTotalStats, isLoading, serialNumbers } = useInventory()
