@@ -15,9 +15,7 @@ export default function DashboardPage() {
   const totalStats = getTotalStats()
   const locationStats = getLocationStats()
 
-  // Hitung jumlah barang yang memiliki minimal satu nomor seri
-  const itemsWithSerial = new Set(serialNumbers.map(sn => sn.itemId))
-  const itemsWithSerialCount = itemsWithSerial.size
+  const itemsWithSerialCount = serialNumbers.length
 
   const locationIconMap: Record<string, React.ElementType> = {
     "Ruang Laboran": Building,
