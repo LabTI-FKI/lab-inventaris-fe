@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useMemo} from "react"
 import Image from "next/image"
 import { useInventory } from "@/hooks/use-inventory"
 import { useAuth } from "@/contexts/auth-context"
