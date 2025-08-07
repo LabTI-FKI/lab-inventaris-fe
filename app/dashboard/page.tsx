@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState, useMemo} from "react"
+import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import { useInventory } from "@/hooks/use-inventory"
 import { useAuth } from "@/contexts/auth-context"
@@ -11,12 +11,8 @@ export default function DashboardPage() {
   const { getLocationStats, getTotalStats, isLoading, serialNumbers } = useInventory()
   const { isAdmin, user } = useAuth()
 
-  const totalStats = useMemo(() => {
-  return isLoading ? { total: 0, totalQuantity: 0, good: 0, broken: 0, locations: 0 } : getTotalStats()
-  }, [isLoading, items, serialNumbers])
-  const locationStats = useMemo(() => {
-  return isLoading ? [] : getLocationStats()
-  }, [isLoading, items, serialNumbers])
+  const totalStats = getTotalStats()
+  const locationStats = getLocationStats()
 
   // Hitung jumlah barang yang memiliki minimal satu nomor seri
   const itemsWithSerialCount = serialNumbers.length
@@ -129,7 +125,7 @@ export default function DashboardPage() {
                   <div>
                     <p className="font-medium">{stat.location}</p>
                     <p className="text-sm text-muted-foreground">
-                      {stat.total} barang • {stat.totalQuantity} jumlah total
+                      {stat.total} barang •
                     </p>
                   </div>
                 </div>
