@@ -122,12 +122,6 @@ export default function DashboardPage() {
               <div key={stat.location} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-3">
                   {React.createElement(locationIconMap[stat.location] || MapPin, { className: "h-4 w-4 text-primary" })}
-                  <div>
-                    <p className="font-medium">{stat.location}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {stat.total} barang • {stat.totalQuantity} jumlah total
-                    </p>
-                  </div>
                 </div>
               </div>
             ))}
