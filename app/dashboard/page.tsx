@@ -11,8 +11,12 @@ export default function DashboardPage() {
   const { getLocationStats, getTotalStats, isLoading, serialNumbers } = useInventory()
   const { isAdmin, user } = useAuth()
 
-  const totalStats = isLoading ? { total: 0, totalQuantity: 0, good: 0, broken: 0, locations: 0 } : getTotalStats()
-  const locationStats = isLoading ? [] : getLocationStats()
+  const totalStats = useMemo(() => {
+  return isLoading ? { total: 0, totalQuantity: 0, good: 0, broken: 0, locations: 0 } : getTotalStats()
+  }, [isLoading, items, serialNumbers])
+  const locationStats = useMemo(() => {
+  return isLoading ? [] : getLocationStats()
+  }, [isLoading, items, serialNumbers])
 
   // Hitung jumlah barang yang memiliki minimal satu nomor seri
   const itemsWithSerialCount = serialNumbers.length
