@@ -39,6 +39,7 @@ export function AppSidebar() {
     "Lab SI": Computer,
     "Lab SIC": Joystick,
     "Lab RPL": Braces,
+    "Pantry":Braces,
   }
 
   const locationItems = LOCATIONS.map((location) => ({
