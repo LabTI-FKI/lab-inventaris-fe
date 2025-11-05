@@ -5,11 +5,11 @@ import Image from "next/image"
 import { useInventory } from "@/hooks/use-inventory"
 import { useAuth } from "@/contexts/auth-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Package, MapPin, TrendingUp, Barcode, Building, Cpu, Network, Computer, Joystick, Braces, FileSpreadsheet} from "lucide-react"
+import { Package, MapPin, TrendingUp, Barcode, Building, Cpu, Network, Computer, Joystick, Braces, FileSpreadsheet, Users, Wrench, Coffee } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import useRooms, { Room } from "@/hooks/use-rooms"
 
-const ICON_COMPONENTS: Record<string, React.ElementType> = { Building, Cpu, Network, Computer, Joystick, Braces }
+const ICON_COMPONENTS: Record<string, React.ElementType> = { Building, Cpu, Network, Computer, Joystick, Braces, Users, Wrench, Coffee }
 
 export default function DashboardPage() {
   const { getLocationStats, getTotalStats, isLoading, serialNumbers, exportToExcel } = useInventory()
