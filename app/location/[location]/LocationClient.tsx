@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,8 +22,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Package, CheckCircle, AlertTriangle, Search, Shield, Barcode } from "lucide-react";
+import { Plus, Edit2, Trash2, Package, CheckCircle, AlertTriangle, Search, Shield, Barcode } from "lucide-react";
+import { BarcodeScanner } from "@/components/barcode-scanner";
 
 export default function LocationClient({ decodedLocation }: { decodedLocation: string }) {
   const { isAdmin } = useAuth();
@@ -34,29 +35,29 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     addSerialNumber,
     updateSerialNumber,
     deleteSerialNumber,
+    refreshItems,
     isLoading,
   } = useInventory();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddItemDialogOpen, setIsAddItemDialogOpen] = useState(false);
-  const [isAddSerialDialogOpen, setIsAddSerialDialogOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [isEditSerialDialogOpen, setIsEditSerialDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [editingSerial, setEditingSerial] = useState<SerialNumber | null>(null);
   const [serialNumbers, setSerialNumbers] = useState<SerialNumber[]>([]);
-  
-
-  const [itemFormData, setItemFormData] = useState({
-    name: "",
-    information: "",
-    location: decodedLocation,
-    quantity: 1,
-  });
 
   const [serialFormData, setSerialFormData] = useState({
     serialNumber: "",
     specs: "",
     status: "good" as "good" | "broken",
+  });
+
+  const [itemFormData, setItemFormData] = useState({
+    name: "",
+    information: "",
+    location: decodedLocation,
   });
 
   const [showAllSpecs, setShowAllSpecs] = useState<{ [id: string]: boolean }>({});
@@ -80,18 +81,46 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
       name: "",
       information: "",
       location: decodedLocation,
-      quantity: 1,
     });
     setEditingItem(null);
   };
 
   const resetSerialForm = () => {
-    setSerialFormData({
-      serialNumber: "",
-      specs: "",
-      status: "good",
-    });
+    setSerialFormData({ serialNumber: "", specs: "", status: "good" });
     setEditingSerial(null);
+  };
+
+  const handleBarcodeScanned = async (data: { serialNumber: string; specs: string; status: "good" | "broken" }) => {
+    if (!selectedItem) return;
+
+    // Validate that kode_inventaris is not empty
+    if (!data.serialNumber.trim()) {
+      alert('Kode Inventaris tidak boleh kosong');
+      return;
+    }
+
+    try {
+      await addSerialNumber({
+        ...data,
+        itemId: selectedItem.id,
+        dateAdded: new Date().toISOString(),
+      });
+
+      // Refresh data in background after dialog closes
+      await Promise.all([
+        refreshItems(),
+        fetchSerialNumbers(selectedItem.id)
+      ]);
+
+      // Update selectedItem with fresh data from refreshed items
+      const updatedItem = itemsByLocation.find(item => item.id === selectedItem.id);
+      if (updatedItem) {
+        setSelectedItem(updatedItem);
+      }
+    } catch (error) {
+      console.error('Error in handleBarcodeScanned:', error);
+      alert('Gagal menyimpan kode inventaris');
+    }
   };
 
   const handleItemSubmit = (e: React.FormEvent) => {
@@ -104,48 +133,22 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
         location: itemFormData.location,
       });
     } else {
-      addItem(
-        {
-          name: itemFormData.name,
-          information: itemFormData.information,
-          location: itemFormData.location,
-        },
-        itemFormData.quantity
-      );
+      addItem({
+        name: itemFormData.name,
+        information: itemFormData.information,
+        location: itemFormData.location,
+      });
     }
 
     resetItemForm();
     setIsAddItemDialogOpen(false);
   };
 
-const handleSerialSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!selectedItem) return;
-
-  if (editingSerial) {
-    await updateSerialNumber(editingSerial.id, serialFormData);
-  } else {
-    await addSerialNumber({
-      ...serialFormData,
-      itemId: selectedItem.id,
-      dateAdded: new Date().toISOString(),
-    });
-  }
-
-  await fetchTotalQuantity(decodedLocation); 
-  await fetchSerialNumbers(selectedItem.id); // ⬅ Refresh serials
-  resetSerialForm();
-  setIsAddSerialDialogOpen(false);
-  window.location.reload();
-};
-
-
   const handleEditItem = (item: InventoryItem) => {
     setItemFormData({
       name: item.name,
       information: item.information,
       location: item.location,
-      quantity: item.jumlah ?? 1,
     });
     setEditingItem(item);
     setIsAddItemDialogOpen(true);
@@ -154,11 +157,11 @@ const handleSerialSubmit = async (e: React.FormEvent) => {
   const handleEditSerial = (serial: SerialNumber) => {
     setSerialFormData({
       serialNumber: serial.serialNumber,
-      specs: serial.specs,
-      status: serial.status,
+      specs: serial.specs || "",
+      status: serial.status || "good",
     });
     setEditingSerial(serial);
-    setIsAddSerialDialogOpen(true);
+    setIsEditSerialDialogOpen(true);
   };
 
   const handleDeleteItem = (id: string) => {
@@ -173,12 +176,53 @@ const handleSerialSubmit = async (e: React.FormEvent) => {
   const handleDeleteSerial = async (id: string) => {
     if (!selectedItem) return;
     if (confirm("Apakah Anda yakin ingin menghapus Kode Inventaris ini?")) {
-      await deleteSerialNumber(id);
-      await fetchSerialNumbers(selectedItem.id); // ⬅ Refresh serials
+      try {
+        await deleteSerialNumber(id);
+        
+        // Refresh all data in parallel
+        await Promise.all([
+          refreshItems(),
+          fetchSerialNumbers(selectedItem.id)
+        ]);
+      } catch (error) {
+        console.error('Error in handleDeleteSerial:', error);
+      }
     }
-    window.location.reload();
   };
 
+  const handleSerialSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedItem || !editingSerial) return;
+
+    // Validate
+    if (!serialFormData.serialNumber.trim()) {
+      alert('Kode Inventaris tidak boleh kosong');
+      return;
+    }
+
+    try {
+      await updateSerialNumber(editingSerial.id, {
+        serialNumber: serialFormData.serialNumber,
+        specs: serialFormData.specs,
+        status: serialFormData.status,
+      });
+
+      // Refresh data
+      await Promise.all([
+        refreshItems(),
+        fetchSerialNumbers(selectedItem.id),
+      ]);
+
+      const updatedItem = itemsByLocation.find(item => item.id === selectedItem.id);
+      if (updatedItem) setSelectedItem(updatedItem);
+
+      setIsEditSerialDialogOpen(false);
+      resetSerialForm();
+    } catch (error) {
+      console.error('Error updating serial:', error);
+      alert('Gagal memperbarui kode inventaris');
+    }
+  };
 
   const handleSelectItem = (item: InventoryItem) => {
     const isSame = selectedItem?.id === item.id;
@@ -188,27 +232,21 @@ const handleSerialSubmit = async (e: React.FormEvent) => {
     }
   };
 
+  const fetchSerialNumbers = async (itemId: string) => {
+    try {
+      const response = await fetch(`https://lab-inventaris-backend.onrender.com/items/${itemId}/serial-numbers`);
+      const data = await response.json();
+      console.log("Fetched serial numbers:", data);
+      setSerialNumbers(data);
+    } catch (error) {
+      console.error("Failed to fetch serial numbers:", error);
+    }
+  };
 
-const fetchSerialNumbers = async (itemId: string) => {
-  try {
-    const response = await fetch(`https://lab-inventaris-backend.onrender.com/items/${itemId}/serial-numbers`);
-    const data = await response.json();
-    console.log("Fetched serial numbers:", data);
-    setSerialNumbers(data);
-  } catch (error) {
-    console.error("Failed to fetch serial numbers:", error);
-  }
-};
+  // Calculate totalQuantity from items instead of separate API call
+  // Ensure jumlah is treated as a number to avoid string concatenation
+  const totalQuantity = itemsByLocation.reduce((sum, item) => sum + Number(item.jumlah ?? 0), 0);
 
-
-
-
-  // const totalQuantity = itemsByLocation.reduce((sum, item) => sum + (item.jumlah ?? 0), 0);
-  const [totalQuantity, setTotalQuantity] = useState<number>(0);
-
-
-
-  // Gambar placeholder lokal
   const statusImages = [
     { src: "/status/status-1.jpg", label: "status-1.jpg" },
     { src: "/status/status-2.jpg", label: "status-2.jpg" },
@@ -219,24 +257,6 @@ const fetchSerialNumbers = async (itemId: string) => {
     const timer = setInterval(() => setStatusIndex((i) => (i + 1) % statusImages.length), 10000);
     return () => clearInterval(timer);
   }, [statusImages.length]);
-
-  const fetchTotalQuantity = async (location: string) => {
-  try {
-    const res = await fetch(`https://lab-inventaris-backend.onrender.com/inventory-count/by-location?location=${encodeURIComponent(location)}`);
-    const data = await res.json();
-    setTotalQuantity(data.total || 0);
-  } catch (err) {
-    console.error("Error fetching total quantity:", err);
-    setTotalQuantity(0);
-  }
-};
-useEffect(() => {
-  if (decodedLocation) {
-    fetchTotalQuantity(decodedLocation);
-  }
-}, [decodedLocation]);
-
-
 
   if (isLoading) {
     return (
@@ -263,14 +283,14 @@ useEffect(() => {
             <DialogTrigger asChild>
               <Button onClick={resetItemForm}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add Item
+                Tambah Barang
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>{editingItem ? "Edit Item" : "Add New Item"}</DialogTitle>
+                <DialogTitle>{editingItem ? "Edit Barang" : "Tambah Barang Baru"}</DialogTitle>
                 <DialogDescription>
-                  {editingItem ? "Update the item details below." : "Add a new item to the inventory."}
+                  {editingItem ? "Perbarui detail item ini." : "Tambah Barang baru di laboratorium."}
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleItemSubmit}>
@@ -297,7 +317,7 @@ useEffect(() => {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">{editingItem ? "Update Item" : "Add Item"}</Button>
+                  <Button type="submit">{editingItem ? "Simpan" : "Tambah Barang"}</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -369,7 +389,6 @@ useEffect(() => {
                   broken: item.rusak ?? 0,
                 };
 
-
                 return (
                   <TableRow
                     key={item.id}
@@ -395,9 +414,9 @@ useEffect(() => {
                       {isAdmin && (
                         <div className="flex gap-2 justify-end">
                           <Button variant="outline" size="icon" onClick={() => handleEditItem(item)}>
-                            <Edit className="h-4 w-4" />
+                            <Edit2 className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="icon" onClick={() => handleDeleteItem(item.id)}>
+                          <Button variant="outline" size="icon" onClick={() => handleDeleteItem(item.id)} className="text-red-600 hover:text-red-700 hover:bg-red-50">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -424,64 +443,63 @@ useEffect(() => {
               </p>
             </div>
             {isAdmin && (
-              <Dialog open={isAddSerialDialogOpen} onOpenChange={setIsAddSerialDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button onClick={resetSerialForm} size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Tambah Kode Inventaris
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>{editingSerial ? "Edit Kode Inventaris" : "Tambah Kode Inventaris"}</DialogTitle>
-                    <DialogDescription>
-                      {editingSerial ? "Perbarui rincian kode inventaris" : "Tambah kode inventaris baru"}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleSerialSubmit}>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid gap-2">
-                        <Label htmlFor="serialNumber">Kode Inventaris</Label>
-                        <Input
-                          id="serialNumber"
-                          value={serialFormData.serialNumber}
-                          onChange={(e) => setSerialFormData({ ...serialFormData, serialNumber: e.target.value })}
-                          placeholder="e.g., *00000001*"
-                        />
+              <>
+                <Button onClick={() => { resetSerialForm(); setIsScannerOpen(true); }} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Tambah Kode Inventaris
+                </Button>
+
+                {/* Edit Serial Dialog */}
+                <Dialog open={isEditSerialDialogOpen} onOpenChange={setIsEditSerialDialogOpen}>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>{editingSerial ? "Edit Kode Inventaris" : "Edit Kode Inventaris"}</DialogTitle>
+                      <DialogDescription>Perbarui rincian kode inventaris</DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleSerialSubmit}>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="serialNumber">Kode Inventaris</Label>
+                          <Input
+                            id="serialNumber"
+                            value={serialFormData.serialNumber}
+                            onChange={(e) => setSerialFormData({ ...serialFormData, serialNumber: e.target.value })}
+                            placeholder="e.g., 00000083"
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="specs">Spesifikasi</Label>
+                          <Textarea
+                            id="specs"
+                            value={serialFormData.specs}
+                            onChange={(e) => setSerialFormData({ ...serialFormData, specs: e.target.value })}
+                            placeholder="e.g., detail spesifikasi"
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="status">Status</Label>
+                          <Select
+                            value={serialFormData.status}
+                            onValueChange={(value: "good" | "broken") => setSerialFormData({ ...serialFormData, status: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="good">Baik</SelectItem>
+                              <SelectItem value="broken">Rusak</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="specs">Spesifikasi</Label>
-                        <Textarea
-                          id="specs"
-                          value={serialFormData.specs}
-                          onChange={(e) => setSerialFormData({ ...serialFormData, specs: e.target.value })}
-                          placeholder="e.g., detail spesifikasi"
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="status">Status</Label>
-                        <Select
-                          value={serialFormData.status}
-                          onValueChange={(value: "good" | "broken") =>
-                            setSerialFormData({ ...serialFormData, status: value })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="good">Baik</SelectItem>
-                            <SelectItem value="broken">Rusak</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button type="submit">{editingSerial ? "Perbarui Kode Inventaris" : "Tambah Kode Inventaris"}</Button>
-                    </DialogFooter>
-                  </form>
-                </DialogContent>
-              </Dialog>
+                      <DialogFooter>
+                        <Button variant="outline" type="button" onClick={() => { setIsEditSerialDialogOpen(false); resetSerialForm(); }}>Batal</Button>
+                        <Button type="submit">Perbarui Kode Inventaris</Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </>
             )}
           </div>
 
@@ -557,9 +575,9 @@ useEffect(() => {
                           {isAdmin && (
                             <div className="flex gap-2 justify-end">
                               <Button variant="outline" size="icon" onClick={() => handleEditSerial(serial)}>
-                                <Edit className="h-4 w-4" />
+                                <Edit2 className="h-4 w-4" />
                               </Button>
-                              <Button variant="outline" size="icon" onClick={() => handleDeleteSerial(serial.id)}>
+                              <Button variant="outline" size="icon" onClick={() => handleDeleteSerial(serial.id)} className="text-red-600 hover:text-red-700 hover:bg-red-50">
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
@@ -597,6 +615,17 @@ useEffect(() => {
           </CardContent>
         </Card>
       )}
+
+      {/* Barcode Scanner Modal */}
+      {selectedItem && (
+        <BarcodeScanner
+          isOpen={isScannerOpen}
+          onClose={() => {
+            setIsScannerOpen(false);
+          }}
+          onSave={handleBarcodeScanned}
+        />
+      )}
     </div>
   );
-} 
+}

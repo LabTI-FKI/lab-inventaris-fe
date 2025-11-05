@@ -2,8 +2,8 @@
 
 import type React from "react"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
@@ -16,12 +16,23 @@ export default function ProtectedLayout({
 }) {
   const { user, isLoading } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+  const [isMobile, setIsMobile] = useState(false)
+
+  const hideSidebar = pathname?.startsWith("/rooms")
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/login")
     }
   }, [user, isLoading, router])
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   if (isLoading) {
     return (
@@ -37,14 +48,27 @@ export default function ProtectedLayout({
   if (!user) {
     return null
   }
+  // For certain pages (rooms) we don't want the sidebar; render a simpler layout.
+  if (hideSidebar) {
+    return (
+      <div className="min-h-screen">
+        <main className="flex-1 p-6">{children}</main>
+      </div>
+    )
+  }
 
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
+        <header className="flex h-16 shrink-0 items-center gap-4 border-b bg-white px-6 md:px-8">
+          {isMobile && (
+            <>
+              <SidebarTrigger className="-ml-2" title="Toggle Sidebar" />
+              <Separator orientation="vertical" className="h-6" />
+            </>
+          )}
+          <div className="flex-1" />
         </header>
         <main className="flex-1 p-6">{children}</main>
       </SidebarInset>
