@@ -180,6 +180,35 @@ export function BarcodeScanner({ isOpen, onClose, onSave }: BarcodeScannerProps)
     } catch (err) {
       console.debug("Stop scanning error:", err);
     }
+    // Always attempt to stop the camera stream when stopping scanning
+    try {
+      stopCameraStream();
+    } catch (e) {
+      console.debug('Error stopping camera after stopScanning', e);
+    }
+  };
+
+  // Ensure the camera MediaStream is stopped and released
+  const stopCameraStream = () => {
+    try {
+      const videoEl = videoRef.current;
+      if (videoEl && videoEl.srcObject) {
+        const stream = videoEl.srcObject as MediaStream;
+        // Stop all tracks
+        stream.getTracks().forEach((t) => {
+          try {
+            t.stop();
+          } catch (e) {
+            console.debug('Error stopping track', e);
+          }
+        });
+        // Release reference from the video element
+        videoEl.srcObject = null;
+        console.log('Camera MediaStream tracks stopped and srcObject cleared');
+      }
+    } catch (err) {
+      console.debug('stopCameraStream error:', err);
+    }
   };
 
   useEffect(() => {
@@ -190,6 +219,24 @@ export function BarcodeScanner({ isOpen, onClose, onSave }: BarcodeScannerProps)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isScanning]);
+
+  // Cleanup when component unmounts to ensure camera is released
+  useEffect(() => {
+    return () => {
+      console.log('BarcodeScanner unmount cleanup: stopping scanner and camera');
+      try {
+        stopScanning();
+      } catch (e) {
+        console.debug('Error during stopScanning in unmount cleanup', e);
+      }
+      try {
+        stopCameraStream();
+      } catch (e) {
+        console.debug('Error during stopCameraStream in unmount cleanup', e);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleClose = () => {
     console.log("Closing barcode scanner");
