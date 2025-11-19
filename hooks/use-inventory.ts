@@ -302,18 +302,34 @@ export function useInventory() {
         return acc;
       }, {});
 
-      // Ensure newly added rooms (client-side) are included even when they have no items
+      // Only include locations that are present in the sidebar (client-side rooms)
+      // and that actually contain items. Do NOT force-include default locations.
       try {
-        const savedRooms = getAllRooms()
-        const savedNames = savedRooms.map((r: any) => r.name)
-        const defaultLocations = ["Ruang Laboran", "Lab FKI", "Lab Jarkom", "Lab SI", "Lab SIC", "Lab RPL"]
-        const allLocations = Array.from(new Set([...defaultLocations, ...savedNames]))
-        allLocations.forEach(loc => {
-          if (!groupedByLocation[loc]) groupedByLocation[loc] = []
-        })
+        const savedRooms = getAllRooms();
+        const savedNames = savedRooms.map((r: any) => r.name);
+
+        if (savedNames && savedNames.length > 0) {
+          // Filter flattenedData to only include items whose location is present in savedNames
+          const filtered = flattenedData.filter((it: any) => savedNames.includes(it['Lokasi']));
+          // Rebuild groupedByLocation from the filtered list so only sidebar rooms with data remain
+          const newGrouped: Record<string, any[]> = filtered.reduce((acc: Record<string, any[]>, item: any) => {
+            const location = item['Lokasi'];
+            if (!acc[location]) acc[location] = [];
+            const { Lokasi, ...itemWithoutLocation } = item;
+            acc[location].push(itemWithoutLocation);
+            return acc;
+          }, {});
+
+          // Replace groupedByLocation only when savedNames are available
+          // This ensures deleted rooms (not present in sidebar) are not exported,
+          // and rooms with no items are skipped entirely.
+          Object.keys(groupedByLocation).forEach(k => delete groupedByLocation[k]);
+          Object.assign(groupedByLocation, newGrouped);
+        }
+        // If savedNames is empty, fall back to exporting whatever locations are present in data
       } catch (e) {
         // if getAllRooms fails (server-side or other), ignore — export will include only locations present in data
-        console.warn('Could not include saved rooms in export:', e)
+        console.warn('Could not filter export by saved rooms:', e);
       }
 
       // Create workbook

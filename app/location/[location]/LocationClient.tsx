@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Image from "next/image";
 import { useAuth } from "@/contexts/auth-context";
 import { useInventory } from "@/hooks/use-inventory";
@@ -251,12 +251,141 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
     { src: "/status/status-1.jpg", label: "status-1.jpg" },
     { src: "/status/status-2.jpg", label: "status-2.jpg" },
     { src: "/status/status-3.jpg", label: "status-3.jpg" },
+    { src: "/status/status-4.jpg", label: "status-4.jpg" },
+    { src: "/status/status-5.jpg", label: "status-5.jpg" },
+    { src: "/status/status-6.jpg", label: "status-6.jpg" },
+    { src: "/status/status-7.jpg", label: "status-7.jpg" },
+    { src: "/status/status-8.jpg", label: "status-8.jpg" },
+    { src: "/status/status-9.jpg", label: "status-9.jpg" },
+    { src: "/status/status-10.jpg", label: "status-10.jpg" },
   ];
   const [statusIndex, setStatusIndex] = useState(0);
+  const [prevStatusIndex, setPrevStatusIndex] = useState<number | null>(null);
+  // Carousel timer and touch support
+  const carouselTimerRef = useRef<number | null>(null);
+  const statusIndexRef = useRef<number>(0);
+  const transitionTimeoutRef = useRef<number | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const touchStartXRef = useRef<number | null>(null);
+  const touchEndXRef = useRef<number | null>(null);
+
+  const statusSrcKey = useMemo(() => statusImages.map((s) => s.src).join("|"), [statusImages]);
+
+  const clearCarouselTimer = useCallback(() => {
+    if (carouselTimerRef.current !== null) {
+      clearInterval(carouselTimerRef.current);
+      carouselTimerRef.current = null;
+    }
+  }, []);
+
+  const changeImage = useCallback((nextIndex: number) => {
+    // Prevent no-op
+    if (nextIndex === statusIndexRef.current) return;
+
+    // clear any pending transition cleanup
+    if (transitionTimeoutRef.current) {
+      clearTimeout(transitionTimeoutRef.current);
+      transitionTimeoutRef.current = null;
+    }
+
+    setPrevStatusIndex(statusIndexRef.current);
+    setIsTransitioning(true);
+    setStatusIndex(nextIndex);
+    statusIndexRef.current = nextIndex;
+
+    // After transition duration, remove prev image
+    transitionTimeoutRef.current = window.setTimeout(() => {
+      setPrevStatusIndex(null);
+      setIsTransitioning(false);
+      transitionTimeoutRef.current = null;
+    }, 700) as unknown as number;
+  }, []);
+
+  const startCarouselTimer = useCallback((delay = 5000) => {
+    clearCarouselTimer();
+    carouselTimerRef.current = window.setInterval(() => {
+      const next = (statusIndexRef.current + 1) % statusImages.length;
+      // use changeImage helper to handle prev/current and transition
+      changeImage(next);
+    }, delay) as unknown as number;
+  }, [clearCarouselTimer, changeImage, statusImages.length]);
+
   useEffect(() => {
-    const timer = setInterval(() => setStatusIndex((i) => (i + 1) % statusImages.length), 10000);
-    return () => clearInterval(timer);
-  }, [statusImages.length]);
+    // Start 5s auto-advance
+    startCarouselTimer(5000);
+    return () => clearCarouselTimer();
+  }, [startCarouselTimer, clearCarouselTimer]);
+
+  // Ensure timeouts/intervals are cleared on unmount
+  useEffect(() => {
+    return () => {
+      clearCarouselTimer();
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+        transitionTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  const goNext = () => {
+    const next = (statusIndexRef.current + 1) % statusImages.length;
+    changeImage(next);
+    startCarouselTimer();
+  };
+
+  const goPrev = () => {
+    const prev = (statusIndexRef.current - 1 + statusImages.length) % statusImages.length;
+    changeImage(prev);
+    startCarouselTimer();
+  };
+
+  // changeImage is defined above using useCallback
+
+  // Preload images to reduce lag when switching
+  useEffect(() => {
+    (async () => {
+      try {
+        await Promise.all(
+          statusImages.map((img) =>
+            new Promise<void>((resolve) => {
+              const i = new window.Image();
+              i.src = img.src;
+              i.onload = () => resolve();
+              i.onerror = () => resolve();
+            })
+          )
+        );
+      } catch {
+        // ignore preload errors
+      }
+    })();
+  }, [statusSrcKey]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchEndXRef.current = null;
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    const start = touchStartXRef.current;
+    const end = touchEndXRef.current;
+    if (start == null || end == null) return;
+    const dx = end - start;
+    const threshold = 50; // px required to count as swipe
+    if (Math.abs(dx) > threshold) {
+      if (dx > 0) {
+        goPrev();
+      } else {
+        goNext();
+      }
+    }
+    touchStartXRef.current = null;
+    touchEndXRef.current = null;
+  };
 
   if (isLoading) {
     return (
@@ -340,13 +469,56 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
             <CardTitle className="text-sm font-medium">Galeri Foto</CardTitle>
           </CardHeader>
           <CardContent>
-            <Image
-              src={statusImages[statusIndex].src}
-              alt={statusImages[statusIndex].label}
-              width={400}
-              height={200}
-              className="rounded w-full h-32 md:h-40 lg:h-48 object-contain md:object-cover mb-2 transition-all"
-            />
+            <div
+              className="relative w-full h-32 md:h-40 lg:h-48 overflow-hidden rounded mb-2 touch-pan-y"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              {/* Previous image for smooth crossfade (if exists) */}
+              {prevStatusIndex !== null && (
+                <div className="absolute inset-0">
+                  <Image
+                    key={`prev-${prevStatusIndex}`}
+                    src={statusImages[prevStatusIndex].src}
+                    alt={statusImages[prevStatusIndex].label}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 400px"
+                    className={`object-cover w-full h-full transition-opacity duration-700 ease-in-out ${isTransitioning ? 'opacity-100' : 'opacity-0'}`}
+                  />
+                </div>
+              )}
+
+              {/* Current image */}
+              <div className="absolute inset-0">
+                <Image
+                  key={`cur-${statusIndex}`}
+                  src={statusImages[statusIndex].src}
+                  alt={statusImages[statusIndex].label}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 400px"
+                  className={`object-cover w-full h-full transition-opacity duration-700 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
+                />
+              </div>
+
+              {/* Controls (optional) */}
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); goPrev(); }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white rounded-full p-1"
+                aria-label="Previous"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); goNext(); }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white rounded-full p-1"
+                aria-label="Next"
+              >
+                ›
+              </button>
+            </div>
           </CardContent>
         </Card>
       </div>
