@@ -247,18 +247,22 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
   // Ensure jumlah is treated as a number to avoid string concatenation
   const totalQuantity = itemsByLocation.reduce((sum, item) => sum + Number(item.jumlah ?? 0), 0);
 
-  const statusImages = [
-    { src: "/status/status-1.jpg", label: "status-1.jpg" },
-    { src: "/status/status-2.jpg", label: "status-2.jpg" },
-    { src: "/status/status-3.jpg", label: "status-3.jpg" },
-    { src: "/status/status-4.jpg", label: "status-4.jpg" },
-    { src: "/status/status-5.jpg", label: "status-5.jpg" },
-    { src: "/status/status-6.jpg", label: "status-6.jpg" },
-    { src: "/status/status-7.jpg", label: "status-7.jpg" },
-    { src: "/status/status-8.jpg", label: "status-8.jpg" },
-    { src: "/status/status-9.jpg", label: "status-9.jpg" },
-    { src: "/status/status-10.jpg", label: "status-10.jpg" },
-  ];
+  // Gambar placeholder lokal (memoized so the reference is stable for hooks)
+  const statusImages = useMemo(
+    () => [
+      { src: "/status/status-1.jpg", label: "status-1.jpg" },
+      { src: "/status/status-2.jpg", label: "status-2.jpg" },
+      { src: "/status/status-3.jpg", label: "status-3.jpg" },
+      { src: "/status/status-4.jpg", label: "status-4.jpg" },
+      { src: "/status/status-5.jpg", label: "status-5.jpg" },
+      { src: "/status/status-6.jpg", label: "status-6.jpg" },
+      { src: "/status/status-7.jpg", label: "status-7.jpg" },
+      { src: "/status/status-8.jpg", label: "status-8.jpg" },
+      { src: "/status/status-9.jpg", label: "status-9.jpg" },
+      { src: "/status/status-10.jpg", label: "status-10.jpg" },
+    ],
+    []
+  );
   const [statusIndex, setStatusIndex] = useState(0);
   const [prevStatusIndex, setPrevStatusIndex] = useState<number | null>(null);
   // Carousel timer and touch support
@@ -325,7 +329,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
         transitionTimeoutRef.current = null;
       }
     };
-  }, []);
+  }, [clearCarouselTimer]);
 
   const goNext = () => {
     const next = (statusIndexRef.current + 1) % statusImages.length;
