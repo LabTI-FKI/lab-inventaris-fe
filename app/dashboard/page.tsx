@@ -11,6 +11,8 @@ import useRooms, { Room } from "@/hooks/use-rooms"
 
   const ICON_COMPONENTS: Record<string, React.ElementType> = { Building, Cpu, Network, Computer, Joystick, Braces, Users, Wrench, Coffee }
 
+  type ImageEntry = { src: string; label: string }
+
 export default function DashboardPage() {
   const { getLocationStats, getTotalStats, isLoading, serialNumbers, exportToExcel } = useInventory()
   const { isAdmin, user } = useAuth()
@@ -58,7 +60,7 @@ export default function DashboardPage() {
   }
 
   // Gambar placeholder lokal (memoized so the reference is stable for hooks)
-  const statusImages = useMemo(
+  const statusImages = useMemo<{ src: string; label: string }[]>(
     () => [
       { src: "/status/status-1.jpg", label: "status-1.jpg" },
       { src: "/status/status-2.jpg", label: "status-2.jpg" },
@@ -83,7 +85,7 @@ export default function DashboardPage() {
   const touchStartXRef = useRef<number | null>(null);
   const touchEndXRef = useRef<number | null>(null);
   
-  const statusSrcKey = useMemo(() => statusImages.map((s) => s.src).join("|"), [statusImages]);
+  const statusSrcKey = useMemo(() => statusImages.map((s: ImageEntry) => s.src).join("|"), [statusImages]);
   const clearCarouselTimer = useCallback(() => {
     if (carouselTimerRef.current !== null) {
       clearInterval(carouselTimerRef.current);
@@ -157,22 +159,23 @@ export default function DashboardPage() {
     // Preload images to reduce lag when switching
     useEffect(() => {
       (async () => {
-        try {
-          await Promise.all(
-            statusImages.map((img) =>
-              new Promise<void>((resolve) => {
-                const i = new window.Image();
-                i.src = img.src;
-                i.onload = () => resolve();
-                i.onerror = () => resolve();
-              })
-            )
-          );
-        } catch {
-          // ignore preload errors
-        }
-      })();
-    }, [statusSrcKey]);
+          try {
+            const srcs = statusSrcKey ? statusSrcKey.split("|") : [];
+            await Promise.all(
+              srcs.map((src: string) =>
+                new Promise<void>((resolve) => {
+                  const i = new window.Image();
+                  i.src = src;
+                  i.onload = () => resolve();
+                  i.onerror = () => resolve();
+                })
+              )
+            );
+          } catch {
+            // ignore preload errors
+          }
+        })();
+      }, [statusSrcKey]);
   
     const handleTouchStart = (e: React.TouchEvent) => {
       touchEndXRef.current = null;
