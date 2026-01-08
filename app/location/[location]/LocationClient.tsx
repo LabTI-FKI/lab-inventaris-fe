@@ -25,6 +25,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Edit2, Trash2, Package, CheckCircle, AlertTriangle, Search, Shield, Barcode } from "lucide-react";
 import { BarcodeScanner } from "@/components/barcode-scanner";
 
+  type ImageEntry = { src: string; label: string };
+
 export default function LocationClient({ decodedLocation }: { decodedLocation: string }) {
   const { isAdmin } = useAuth();
   const {
@@ -248,7 +250,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
   const totalQuantity = itemsByLocation.reduce((sum, item) => sum + Number(item.jumlah ?? 0), 0);
 
   // Gambar placeholder lokal (memoized so the reference is stable for hooks)
-  const statusImages = useMemo(
+  const statusImages = useMemo<ImageEntry[]>(
     () => [
       { src: "/status/status-1.jpg", label: "status-1.jpg" },
       { src: "/status/status-2.jpg", label: "status-2.jpg" },
@@ -273,7 +275,7 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
   const touchStartXRef = useRef<number | null>(null);
   const touchEndXRef = useRef<number | null>(null);
 
-  const statusSrcKey = useMemo(() => statusImages.map((s) => s.src).join("|"), [statusImages]);
+  const statusSrcKey = useMemo(() => statusImages.map((s: ImageEntry) => s.src).join("|"), [statusImages]);
 
   const clearCarouselTimer = useCallback(() => {
     if (carouselTimerRef.current !== null) {
@@ -349,11 +351,12 @@ export default function LocationClient({ decodedLocation }: { decodedLocation: s
   useEffect(() => {
     (async () => {
       try {
+        const srcs = statusSrcKey ? statusSrcKey.split("|") : [];
         await Promise.all(
-          statusImages.map((img) =>
+          srcs.map((src: string) =>
             new Promise<void>((resolve) => {
               const i = new window.Image();
-              i.src = img.src;
+              i.src = src;
               i.onload = () => resolve();
               i.onerror = () => resolve();
             })
